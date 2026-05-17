@@ -20,7 +20,7 @@ interface ChatMessage {
 export class AiComponent {
   apiKey = '';
   userInput = '';
-  messages: ChatMessage[] = [{ type: 'bot', text: 'Write something and Tedo will answer. Please set your Gemini API key first.' }];
+  messages: ChatMessage[] = [{ type: 'bot', text: 'Write something and I will answer. Please set your Gemini API key first.' }];
   isTyping = false;
 
   constructor(private api: ApiService, private http: HttpClient) { }
