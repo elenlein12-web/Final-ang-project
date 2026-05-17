@@ -1,0 +1,43 @@
+<p>rooms works!</p>
+<section class="TITLE-page">
+  <h1>Find Your Perfect Room</h1>
+  <div class="section-description">
+    Search and filter from our collection of premium accommodations
+  </div>
+</section>
+
+<section id="controls">
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Search rooms by name..."
+    [(ngModel)]="search"
+    (input)="searchRooms()"
+  />
+
+  <select id="sortSelect" [(ngModel)]="sort" (change)="applySort()">
+    <option value="default">Sort by</option>
+    <option value="asc">Price: Low to High</option>
+    <option value="desc">Price: High to Low</option>
+  </select>
+  <label for="minPrice">Min Price:</label>
+  <input type="number" id="minPrice" [(ngModel)]="minPrice" />
+  <label for="maxPrice">Max Price:</label>
+  <input type="number" id="maxPrice" [(ngModel)]="maxPrice" />
+  <button id="filterBtn" type="button" (click)="filterByPrice()">APPLY FILTERS</button>
+  <button type="button" (click)="resetFilters()">RESET</button>
+</section>
+
+<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+<div id="rooms">
+  <div *ngFor="let room of rooms" class="roomcard">
+    <img [src]="room.images?.[0]?.source || 'images/itStep.jpg'" [alt]="room.name" />
+    <h2>{{ room.name }}</h2>
+    <p><strong>Price:</strong> {{ room.pricePerNight }} $</p>
+    <p><strong>Guests:</strong> {{ room.maximumGuests }}</p>
+    <p><strong>Available:</strong> {{ room.available ? 'Yes' : 'No' }}</p>
+    <p><strong>Room ID:</strong> {{ room.id }}</p>
+    <button class="book-btn" (click)="bookRoom(room)">RESERVE ROOM</button>
+  </div>
+</div>

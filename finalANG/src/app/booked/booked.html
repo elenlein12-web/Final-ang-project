@@ -1,0 +1,94 @@
+<section class="TITLE-page">
+  <h1>Manage Your Bookings</h1>
+  <div class="section-description">Reserve new rooms or view your existing reservations</div>
+</section>
+
+<div class="booking-page">
+  <form class="booking-form" (ngSubmit)="book()">
+    <div class="form-group">
+      <label for="roomSelect">Room *</label>
+      <select id="roomSelect" name="roomId" [(ngModel)]="bookingModel.roomId" required>
+        <option value="">-- Select room --</option>
+        <option *ngFor="let room of rooms" [value]="room.id">
+          {{ room.name }} - ${{ room.pricePerNight }}/night
+        </option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="checkInDate">Check-in Date *</label>
+        <input
+          id="checkInDate"
+          name="checkInDate"
+          type="date"
+          [(ngModel)]="bookingModel.checkInDate"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="checkOutDate">Check-out Date *</label>
+        <input
+          id="checkOutDate"
+          name="checkOutDate"
+          type="date"
+          [(ngModel)]="bookingModel.checkOutDate"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="clientName">Client Name *</label>
+      <input
+        id="clientName"
+        name="clientName"
+        type="text"
+        [(ngModel)]="bookingModel.clientName"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="clientPhone">Phone *</label>
+      <input
+        id="clientPhone"
+        name="clientPhone"
+        type="tel"
+        [(ngModel)]="bookingModel.clientPhone"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="clientEmail">Email</label>
+      <input
+        id="clientEmail"
+        name="clientEmail"
+        type="email"
+        [(ngModel)]="bookingModel.clientEmail"
+      />
+    </div>
+
+    <button type="submit">CONFIRM BOOKING</button>
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+  </form>
+
+  <section class="booked-list">
+    <h2>Your Active Reservations</h2>
+    <div *ngIf="bookings.length === 0" class="empty-message">No bookings yet.</div>
+
+    <div *ngFor="let booking of bookings" class="booked-card">
+      <h3>{{ booking.roomName }}</h3>
+      <p><strong>Client:</strong> {{ booking.clientName }}</p>
+      <p><strong>Phone:</strong> {{ booking.clientPhone }}</p>
+      <p><strong>Check-in:</strong> {{ booking.checkInDate }}</p>
+      <p><strong>Check-out:</strong> {{ booking.checkOutDate }}</p>
+      <p><strong>Nights:</strong> {{ booking.nights }}</p>
+      <p><strong>Total:</strong> ${{ booking.totalPrice }}</p>
+      <button class="cancel-booking" (click)="cancelBooking(booking.id)">Cancel Booking</button>
+    </div>
+  </section>
+</div>

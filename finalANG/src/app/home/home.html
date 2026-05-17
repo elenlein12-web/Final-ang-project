@@ -1,0 +1,88 @@
+<section class="hero-sec">
+  <div class="hero-sec2">
+    <div class="hero-sec3">
+      <h1>Luxury Hospitality Redefined</h1>
+      <p>Experience world-class accommodations with exceptional service</p>
+      <button class="hotel-button" routerLink="/hotels">EXPLORE HOTELS</button>
+    </div>
+  </div>
+</section>
+
+<section class="fav-room">
+  <h2 class="section-title">Guest Favorites</h2>
+  <div class="space"></div>
+
+  <div class="boxes" *ngIf="favoriteRooms.length; else noRooms">
+    <div class="card-info" *ngFor="let room of favoriteRooms">
+      <div class="img-room">
+        <img
+          [src]="room.images?.[0]?.source || 'images/itStep.jpg'"
+          alt="Room Image"
+          class="room-image"
+        />
+      </div>
+      <div class="room-details">
+        <h3 class="room-name">{{ room.name }}</h3>
+        <div class="room-price">
+          <span class="price">{{ room.pricePerNight }} $</span>
+          <span class="Night">per night</span>
+        </div>
+      </div>
+      <button class="hotel-button" routerLink="/booked" (click)="selectRoom(room)">
+        RESERVE NOW
+      </button>
+    </div>
+  </div>
+  <ng-template #noRooms>
+    <div class="noRoom">
+      <p>No favorite rooms found yet.</p>
+      <pre>{{ apiResponse | json }}</pre>
+    </div>
+  </ng-template>
+</section>
+<section class="sectionn">
+  <h2 class="section-title">Why Choose Us</h2>
+  <div class="space"></div>
+
+  <div class="info-box">
+    <div class="info-thing">
+      <div class="info-emoji">👀</div>
+      <h3>Luxury Ocean View Suites</h3>
+      <p>
+        Wake up to breathtaking sea views in our spacious suites designed for comfort, elegance, and
+        relaxation during your entire stay.
+      </p>
+      <a href="#" class="read-more">Learn more →</a>
+    </div>
+
+    <div class="info-thing">
+      <div class="info-emoji">📶</div>
+      <h3>High-Speed Wi-Fi Everywhere</h3>
+      <p>
+        Stay connected with fast and reliable internet access available throughout the hotel,
+        including rooms and public areas.
+      </p>
+      <a href="#" class="read-more">Learn more →</a>
+    </div>
+
+    <div class="info-thing">
+      <div class="info-emoji">🌊</div>
+      <h3>Infinity Pool & Rooftop Lounge</h3>
+      <p>
+        Relax by our stunning rooftop infinity pool while enjoying signature drinks, sunset views,
+        and live evening entertainment.
+      </p>
+      <a href="#" class="read-more">Learn more →</a>
+    </div>
+
+    <div class="info-thing">
+      <div class="info-emoji">✈️</div>
+      <h3>Free Airport Transfers</h3>
+      <p>
+        Travel stress-free with complimentary airport pickup and drop-off services included for all
+        hotel guests.
+      </p>
+      <a href="#" class="read-more">Learn more →</a>
+    </div>
+  </div>
+</section>

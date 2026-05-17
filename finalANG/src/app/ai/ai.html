@@ -1,0 +1,44 @@
+<div class="chat-container">
+  <header class="chat-header">
+    <div class="logo">Luxury AI Assistant</div>
+    <div>Get personalized recommendations for hotels, rooms, and bookings</div>
+  </header>
+
+  <div class="api-key-section">
+    <label>API Key:</label>
+    <input
+      type="password"
+      id="apiKey"
+      [(ngModel)]="apiKey"
+      placeholder="Enter your Gemini API key..."
+    />
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div
+      *ngFor="let message of messages"
+      [ngClass]="{
+        message: true,
+        user: message.type === 'user',
+        bot: message.type === 'bot',
+        error: message.type === 'error',
+      }"
+    >
+      <div *ngIf="message.type === 'bot'" class="label">🤖 Assistant</div>
+      <div *ngIf="message.type === 'user'" class="label">👤 You</div>
+      <div>{{ message.text }}</div>
+    </div>
+    <div *ngIf="isTyping" class="typing-indicator"><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="chat-input">
+    <input
+      type="text"
+      id="userInput"
+      [(ngModel)]="userInput"
+      placeholder="Ask me anything about your stay..."
+      autocomplete="off"
+    />
+    <button id="sendBtn" type="button" (click)="sendMessage()" [disabled]="isTyping">SEND</button>
+  </div>
+</div>

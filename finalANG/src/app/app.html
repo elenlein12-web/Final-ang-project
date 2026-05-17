@@ -1,0 +1,42 @@
+<header>
+  <nav>
+    <button id="burgerBtn" type="button" (click)="toggleNav()">☰</button>
+    <ul id="Nav-Bar" [class.show]="navOpen">
+      <li>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+          >Home</a
+        >
+      </li>
+      <li><a routerLink="/rooms" routerLinkActive="active">Rooms</a></li>
+      <li><a routerLink="/hotels" routerLinkActive="active">Hotels</a></li>
+      <li><a routerLink="/booked" routerLinkActive="active">Booked Rooms</a></li>
+      <li><a routerLink="/ai" routerLinkActive="active">AI Chat</a></li>
+      <li *ngIf="!auth.isLoggedIn"><a routerLink="/login">Login</a></li>
+      <li *ngIf="!auth.isLoggedIn"><a routerLink="/register">Register</a></li>
+      <li *ngIf="auth.isLoggedIn" class="nav-user">Hi, {{ auth.userPhone }}</li>
+      <li *ngIf="auth.isLoggedIn">
+        <button type="button" class="logout-button" (click)="logout()">Logout</button>
+      </li>
+    </ul>
+  </nav>
+
+  <button id="darkModeBtn" type="button" (click)="toggleDarkMode()">
+    {{ darkMode ? '☀️ Light Mode' : '🌙 Dark Mode' }}
+  </button>
+</header>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<footer>
+  <div id="footer-content">
+    <p>Thank you for visiting!</p>
+    <ul id="footer-links">
+      <li><a routerLink="/">Home</a></li>
+      <li><a routerLink="/rooms">Rooms</a></li>
+      <li><a routerLink="/hotels">Hotels</a></li>
+      <li><a routerLink="/booked">Bookings</a></li>
+    </ul>
+  </div>
+</footer>

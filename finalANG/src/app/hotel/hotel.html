@@ -1,0 +1,25 @@
+<section class="TITLE-page">
+  <h1>Discover Our Hotels</h1>
+  <div class="section-description">Explore our collection of luxury hotels worldwide</div>
+</section>
+
+<section class="filtering">
+  <label for="citySelect">Filter by City</label>
+  <select id="citySelect" [(ngModel)]="selectedCity" (change)="filterHotels()">
+    <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+  </select>
+</section>
+
+<div class="hotel-list">
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <div *ngFor="let hotel of filteredHotels" class="hotelrooms">
+    <img
+      [src]="hotel.featuredImage || hotel.rooms?.[0]?.images?.[0]?.source || 'images/itStep.jpg'"
+      alt="{{ hotel.name }}"
+    />
+    <h2>{{ hotel.name }}</h2>
+    <p><strong>Address:</strong> {{ hotel.address }}</p>
+    <p><strong>City:</strong> {{ hotel.city }}</p>
+    <button routerLink="/rooms">EXPLORE ROOMS</button>
+  </div>
+</div>

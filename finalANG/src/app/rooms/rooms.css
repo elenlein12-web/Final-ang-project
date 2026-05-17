@@ -1,0 +1,180 @@
+#controls {
+  width: 35%;
+  max-width: 420px;
+  min-width: 280px;
+  margin: 40px 0 30px 40px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px var(--shadow-light);
+}
+
+#rooms {
+  width: calc(65% - 80px);
+  margin: -70px 40px 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  padding: 0 0 40px;
+  box-sizing: border-box;
+  transform: translateY(-415px);
+}
+#searchInput,
+#minPrice,
+#maxPrice,
+#sortSelect {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1.5px solid rgba(196, 132, 106, 0.2);
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+#searchInput::placeholder,
+#minPrice::placeholder,
+#maxPrice::placeholder {
+  color: black;
+}
+
+#searchInput:focus,
+#minPrice:focus,
+#maxPrice:focus,
+#sortSelect:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(196, 132, 106, 0.15);
+}
+
+#filterBtn,
+#controls button {
+  width: 100%;
+  padding: 12px 24px;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(196, 132, 106, 0.3);
+}
+
+#controls button:not(#filterBtn) {
+  background: transparent;
+  color: var(--accent-primary);
+  border: 1.5px solid var(--accent-primary);
+  box-shadow: none;
+}
+
+#filterBtn:hover,
+#controls button:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.roomcard {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px var(--shadow-light);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-light);
+}
+
+.roomcard img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.roomcard:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 16px 40px var(--shadow-hover);
+}
+
+.roomcard:hover img {
+  transform: scale(1.08);
+}
+
+.roomcard h2 {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding: 16px 16px 0;
+  font-weight: 700;
+}
+
+.roomcard p {
+  margin: 8px 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  padding: 0 16px;
+  line-height: 1.6;
+}
+
+.roomcard p strong {
+  color: var(--accent-primary);
+  font-weight: 700;
+}
+
+.book-btn {
+  padding: 12px 24px;
+  margin: 16px;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(196, 132, 106, 0.3);
+  width: calc(100% - 32px);
+}
+
+.book-btn:hover {
+  background: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.error-message {
+  background: rgba(214, 48, 49, 0.1);
+  color: #d63031;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 20px;
+  border-left: 4px solid #d63031;
+}
+
+@media (max-width: 900px) {
+  #controls {
+    width: auto;
+    max-width: none;
+    margin: 20px;
+  }
+
+  #rooms {
+    width: auto;
+    margin-top: 450px;
+    margin-left: 40px;
+    grid-template-columns: 1fr;
+  }
+}
