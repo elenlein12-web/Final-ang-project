@@ -12,7 +12,10 @@
   <h2 class="section-title">Guest Favorites</h2>
   <div class="space"></div>
 
-  <div class="boxes" *ngIf="favoriteRooms.length; else noRooms">
+  <div *ngIf="isLoading" class="noRoom">Loading featured rooms...</div>
+  <div *ngIf="!isLoading && errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div class="boxes" *ngIf="!isLoading && !errorMessage && favoriteRooms.length; else noRooms">
     <div class="card-info" *ngFor="let room of favoriteRooms">
       <div class="img-room">
         <img
@@ -34,9 +37,8 @@
     </div>
   </div>
   <ng-template #noRooms>
-    <div class="noRoom">
+    <div class="noRoom" *ngIf="!isLoading && !errorMessage">
       <p>No favorite rooms found yet.</p>
-      <pre>{{ apiResponse | json }}</pre>
     </div>
   </ng-template>
 </section>

@@ -29,11 +29,6 @@
   backdrop-filter: blur(15px);
 }
 
-/* Light Mode Hero Background */
-body:not(.dark-mode) .hero-sec {
-  background: linear-gradient(135deg, #a76d22 0%, #ffffff 100%);
-}
-
 .hero-sec2 {
   display: flex;
   align-items: center;
@@ -164,8 +159,9 @@ body:not(.dark-mode) .hero-sec {
 }
 
 .room-name {
+  display: inline;
   font-size: 1.3rem;
-  color: #2b2b2b;
+  color: #c70000;
   margin-bottom: 12px;
   font-weight: 700;
 }

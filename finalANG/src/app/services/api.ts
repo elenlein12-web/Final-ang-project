@@ -37,4 +37,13 @@ export class ApiService {
   async createBooking(payload: any): Promise<any> {
     return firstValueFrom(this.http.post<any>(`${API_BASE}/Booking`, payload));
   }
+
+  async getBookings(): Promise<any[]> {
+    const response = await firstValueFrom(this.http.get<any>(`${API_BASE}/Booking`));
+    return Array.isArray(response) ? response : response?.value ?? [];
+  }
+
+  async deleteBooking(bookingId: number): Promise<any> {
+    return firstValueFrom(this.http.delete<any>(`${API_BASE}/Booking/${bookingId}`));
+  }
 }

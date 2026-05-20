@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api';
+import { AuthService } from '../services/auth';
 
 interface Booking {
   id: number;
-  apiId?: number;
   roomId: number;
   roomName: string;
   roomPrice: number;
@@ -39,12 +39,14 @@ export class BookedComponent implements OnInit {
   };
   successMessage = '';
   errorMessage = '';
+  private allApiBookings: any[] = [];
 
-  constructor(private api: ApiService) { }
+  constructor(private api: ApiService, private auth: AuthService) { }
 
   async ngOnInit(): Promise<void> {
     await this.loadRooms();
-    this.loadBookings();
+    this.bookingModel.clientPhone = this.auth.userPhone;
+    await this.loadBookings();
     const selectedRoomId = sessionStorage.getItem('selectedRoomId');
     if (selectedRoomId) {
       this.bookingModel.roomId = selectedRoomId;
@@ -63,13 +65,17 @@ export class BookedComponent implements OnInit {
     }
   }
 
-  loadBookings(): void {
-    const stored = localStorage.getItem('hotelBookings');
-    this.bookings = stored ? JSON.parse(stored) : [];
-  }
-
-  saveBookings(): void {
-    localStorage.setItem('hotelBookings', JSON.stringify(this.bookings));
+  async loadBookings(): Promise<void> {
+    try {
+      this.allApiBookings = await this.api.getBookings();
+      const phone = this.normalizePhone(this.bookingModel.clientPhone || this.auth.userPhone);
+      this.bookings = this.allApiBookings
+        .filter((booking) => phone && this.samePhone(booking.customerPhone, phone))
+        .map((booking) => this.mapApiBooking(booking));
+    } catch (error) {
+      this.errorMessage = 'Failed to load bookings from API.';
+      console.error(error);
+    }
   }
 
   async book(): Promise<void> {
@@ -100,9 +106,8 @@ export class BookedComponent implements OnInit {
     }
 
     const roomConflict = this.bookings.some((booking) =>
-      booking.roomId === room.id &&
-      !(new Date(this.bookingModel.checkOutDate) <= new Date(booking.checkInDate) ||
-        new Date(this.bookingModel.checkInDate) >= new Date(booking.checkOutDate))
+      Number(booking.roomId) === Number(room.id) &&
+      !(checkOut <= new Date(booking.checkInDate) || checkIn >= new Date(booking.checkOutDate))
     );
 
     if (roomConflict) {
@@ -113,57 +118,94 @@ export class BookedComponent implements OnInit {
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
     const totalPrice = (room.pricePerNight ?? 0) * nights;
 
-    const booking: Booking = {
-      id: Date.now(),
-      roomId: room.id,
-      roomName: room.name,
-      roomPrice: room.pricePerNight ?? 0,
-      checkInDate: this.bookingModel.checkInDate,
-      checkOutDate: this.bookingModel.checkOutDate,
-      nights,
-      totalPrice,
-      clientName: this.bookingModel.clientName,
-      clientPhone: this.bookingModel.clientPhone,
-      clientEmail: this.bookingModel.clientEmail,
-      bookingDate: new Date().toLocaleDateString('ka-GE')
-    };
-
     const apiPayload = {
+      id: 0,
       roomID: Number(room.id),
-      checkInDate: new Date(this.bookingModel.checkInDate + 'T00:00:00').toISOString(),
-      checkOutDate: new Date(this.bookingModel.checkOutDate + 'T23:59:59').toISOString(),
+      checkInDate: this.toApiDate(this.bookingModel.checkInDate),
+      checkOutDate: this.toApiDate(this.bookingModel.checkOutDate),
       totalPrice,
       isConfirmed: true,
       customerName: this.bookingModel.clientName,
-      customerId: this.bookingModel.clientEmail || null,
+      customerId: this.bookingModel.clientEmail || '',
       customerPhone: this.bookingModel.clientPhone
     };
 
     try {
-      const result = await this.api.createBooking(apiPayload);
-      if (result?.id) {
-        booking.apiId = result.id;
-      }
+      await this.api.createBooking(apiPayload);
+      this.successMessage = `Booking confirmed! Total: $${totalPrice}`;
+      const bookedPhone = this.bookingModel.clientPhone;
+      await this.loadBookings();
+      this.bookingModel = {
+        roomId: '',
+        checkInDate: '',
+        checkOutDate: '',
+        clientName: '',
+        clientPhone: bookedPhone,
+        clientEmail: ''
+      };
     } catch (error) {
-      console.warn('Failed to save booking to API, using local storage only.', error);
+      this.errorMessage = 'Failed to save booking to API.';
+      console.error(error);
     }
-
-    this.bookings.push(booking);
-    this.saveBookings();
-    this.successMessage = `Booking confirmed! Total: $${totalPrice}`;
-    this.bookingModel = {
-      roomId: '',
-      checkInDate: '',
-      checkOutDate: '',
-      clientName: '',
-      clientPhone: '',
-      clientEmail: ''
-    };
-    this.loadBookings();
   }
 
-  cancelBooking(id: number): void {
-    this.bookings = this.bookings.filter((booking) => booking.id !== id);
-    this.saveBookings();
+  async cancelBooking(id: number): Promise<void> {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    try {
+      await this.api.deleteBooking(id);
+      this.successMessage = 'Booking cancelled.';
+      await this.loadBookings();
+    } catch (error) {
+      this.errorMessage = 'Failed to cancel booking.';
+      console.error(error);
+    }
+  }
+
+  async searchByPhone(): Promise<void> {
+    this.errorMessage = '';
+    this.successMessage = '';
+    await this.loadBookings();
+  }
+
+  private mapApiBooking(booking: any): Booking {
+    const room = this.rooms.find((item) => Number(item.id) === Number(booking.roomID));
+    const checkInDate = this.toInputDate(booking.checkInDate);
+    const checkOutDate = this.toInputDate(booking.checkOutDate);
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+    const nights = Math.max(0, Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)));
+
+    return {
+      id: booking.id,
+      roomId: booking.roomID,
+      roomName: room?.name ?? `Room #${booking.roomID}`,
+      roomPrice: room?.pricePerNight ?? 0,
+      checkInDate,
+      checkOutDate,
+      nights,
+      totalPrice: booking.totalPrice ?? 0,
+      clientName: booking.customerName ?? '',
+      clientPhone: booking.customerPhone ?? '',
+      clientEmail: booking.customerId ?? '',
+      bookingDate: ''
+    };
+  }
+
+  private samePhone(left: string | null | undefined, right: string | null | undefined): boolean {
+    return this.normalizePhone(left) === this.normalizePhone(right);
+  }
+
+  private normalizePhone(phone: string | null | undefined): string {
+    return (phone ?? '').replace(/\D/g, '');
+  }
+
+  private toApiDate(date: string): string {
+    return `${date}T00:00:00`;
+  }
+
+  private toInputDate(date: string): string {
+    return date?.slice(0, 10) ?? '';
   }
 }

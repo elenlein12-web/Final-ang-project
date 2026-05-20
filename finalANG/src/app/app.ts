@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './services/auth';
@@ -10,25 +10,13 @@ import { AuthService } from './services/auth';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit {
+export class App {
   navOpen = false;
-  darkMode = false;
 
   constructor(public auth: AuthService, private router: Router) { }
 
-  ngOnInit(): void {
-    this.darkMode = localStorage.getItem('darkMode') === 'enabled';
-    document.body.classList.toggle('dark-mode', this.darkMode);
-  }
-
   toggleNav(): void {
     this.navOpen = !this.navOpen;
-  }
-
-  toggleDarkMode(): void {
-    this.darkMode = !this.darkMode;
-    document.body.classList.toggle('dark-mode', this.darkMode);
-    localStorage.setItem('darkMode', this.darkMode ? 'enabled' : 'disabled');
   }
 
   logout(): void {

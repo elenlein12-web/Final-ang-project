@@ -1,33 +1,19 @@
 :root {
-  /* Light Theme Colors */
-  --primary-white: #ffffff;
-  --primary-cream: #f6efe6;
-  --primary-rust: #c4846a;
-  --primary-rose: #e8cfcf;
+  /* Dark Theme Colors (Only) */
   --primary-dark: #2b2b2b;
   --text-muted: #6b6b6b;
-  --border-light: rgba(196, 132, 106, 0.1);
-  --shadow-light: rgba(43, 43, 43, 0.08);
-  --shadow-hover: rgba(196, 132, 106, 0.2);
+  --border-light: rgba(232, 207, 207, 0.1);
+  --shadow-light: rgba(0, 0, 0, 0.2);
+  --shadow-hover: rgba(232, 207, 207, 0.2);
 
   /* Glassmorphism */
   --glass-blur: 30px;
-  --glass-opacity: 0.1;
-  --glass-border: rgba(196, 132, 106, 0.15);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  --glass-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.15);
-}
+  --glass-opacity: 0.08;
+  --glass-border: rgba(232, 207, 207, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.4);
 
-body.light-mode {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f6efe6;
-  --text-primary: #2b2b2b;
-  --text-secondary: #6b6b6b;
-  --accent-primary: #c4846a;
-  --accent-secondary: #e8cfcf;
-}
-
-body.dark-mode {
+  /* Dark Mode Variables */
   --bg-primary: #1a1a1a;
   --bg-secondary: #2b2b2b;
   --text-primary: #f6efe6;
@@ -43,12 +29,13 @@ body.dark-mode {
 }
 
 body {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  background: linear-gradient(135deg, #2b2b2b 0%, #1f1f1f 100%);
   font-family: 'Bitcount Single', system-ui;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   line-height: 1.6;
+  color: #e0e0e0;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
@@ -56,14 +43,15 @@ body {
 
 header {
   padding: 16px 40px;
-  box-shadow: 0 2px 16px;
+  background-color: rgba(43, 43, 43, 0.7);
+  backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid rgba(232, 207, 207, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1px solid;
   transition:
     background-color 0.3s ease,
     border-color 0.3s ease;
@@ -135,33 +123,15 @@ header {
   color: var(--text-primary);
 }
 
-#darkModeBtn {
-  padding: 10px 18px;
-  border-radius: 20px;
-  border: none;
-  background: var(--accent-primary);
-  color: var(--bg-primary);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  font-size: 13px;
-  box-shadow: 0 4px 12px rgba(196, 132, 106, 0.3);
-}
-
-#darkModeBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(196, 132, 106, 0.4);
-}
-
 main {
   flex: 1;
 }
 
 footer {
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid rgba(232, 207, 207, 0.1);
   padding: 40px 20px;
   text-align: center;
-  background: var(--bg-primary);
+  background: #1a1a1a;
   margin-top: 60px;
 }
 
@@ -189,80 +159,7 @@ footer p {
 }
 
 #footer-links a:hover {
-  color: var(--primary-dark);
-}
-
-body.dark-mode {
-  background: linear-gradient(135deg, #2b2b2b 0%, #1f1f1f 100%);
-  color: #e0e0e0;
-}
-
-body.dark-mode header {
-  background-color: rgba(43, 43, 43, 0.7);
-  backdrop-filter: blur(var(--glass-blur));
-  border-bottom-color: rgba(232, 207, 207, 0.1);
-}
-
-body.dark-mode #Nav-Bar li a,
-body.dark-mode #Nav-Bar li button {
   color: var(--text-primary);
-}
-
-body.dark-mode #footer-links a {
-  color: var(--accent-primary);
-}
-
-body.dark-mode #searchInput,
-body.dark-mode #minPrice,
-body.dark-mode #maxPrice,
-body.dark-mode #sortSelect,
-body.dark-mode #searchInput::placeholder,
-body.dark-mode #minPrice::placeholder,
-body.dark-mode #maxPrice::placeholder {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  border-color: rgba(232, 207, 207, 0.2);
-}
-
-body.dark-mode .roomcard,
-body.dark-mode .hotelrooms,
-body.dark-mode .auth-form,
-body.dark-mode .booking-form,
-body.dark-mode .chat-container {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-body.dark-mode .hotelrooms h2,
-body.dark-mode .hotelrooms p {
-  color: var(--text-primary);
-}
-
-body.dark-mode .roomcard p {
-  color: var(--text-secondary);
-}
-
-body.dark-mode .booking-form h3,
-body.dark-mode .booking-form label,
-body.dark-mode .api-key-section label {
-  color: var(--text-primary);
-}
-
-body.dark-mode .api-key-section {
-  background-color: rgba(232, 207, 207, 0.08);
-  border-bottom-color: rgba(232, 207, 207, 0.1);
-}
-
-body.dark-mode .api-key-section input {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  border-color: rgba(232, 207, 207, 0.2);
-}
-
-body.dark-mode .message.bot {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  border-color: rgba(232, 207, 207, 0.1);
 }
 
 #rooms,
