@@ -17,7 +17,21 @@ interface Booking {
   clientPhone: string;
   clientEmail: string;
   bookingDate: string;
+  localOnly?: boolean;
 }
+
+interface BookingPostPayload {
+  id: number;
+  roomID: number;
+  checkInDate: string;
+  checkOutDate: string;
+  totalPrice: number;
+  isConfirmed: boolean;
+  customerName: string;
+  customerId: string;
+  customerPhone: string;
+}
+
 @Component({
   selector: 'app-booked',
   standalone: true,
@@ -28,6 +42,7 @@ interface Booking {
 export class BookedComponent implements OnInit {
   rooms: any[] = [];
   bookings: Booking[] = [];
+  isBooking = false;
   selectedRoomId = '';
   bookingModel = {
     roomId: '',
@@ -35,18 +50,18 @@ export class BookedComponent implements OnInit {
     checkOutDate: '',
     clientName: '',
     clientPhone: '',
-    clientEmail: ''
+    customerId: ''
   };
   successMessage = '';
   errorMessage = '';
   private allApiBookings: any[] = [];
+  private readonly localBookingsKey = 'localBookings';
 
   constructor(private api: ApiService, private auth: AuthService) { }
 
   async ngOnInit(): Promise<void> {
     await this.loadRooms();
     this.bookingModel.clientPhone = this.auth.userPhone;
-    await this.loadBookings();
     const selectedRoomId = sessionStorage.getItem('selectedRoomId');
     if (selectedRoomId) {
       this.bookingModel.roomId = selectedRoomId;
@@ -68,8 +83,9 @@ export class BookedComponent implements OnInit {
   async loadBookings(): Promise<void> {
     try {
       this.allApiBookings = await this.api.getBookings();
+      const localBookings = this.getLocalBookings();
       const phone = this.normalizePhone(this.bookingModel.clientPhone || this.auth.userPhone);
-      this.bookings = this.allApiBookings
+      this.bookings = [...this.allApiBookings, ...localBookings]
         .filter((booking) => phone && this.samePhone(booking.customerPhone, phone))
         .map((booking) => this.mapApiBooking(booking));
     } catch (error) {
@@ -79,6 +95,10 @@ export class BookedComponent implements OnInit {
   }
 
   async book(): Promise<void> {
+    if (this.isBooking) {
+      return;
+    }
+
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -105,53 +125,60 @@ export class BookedComponent implements OnInit {
       return;
     }
 
-    const roomConflict = this.bookings.some((booking) =>
-      Number(booking.roomId) === Number(room.id) &&
-      !(checkOut <= new Date(booking.checkInDate) || checkIn >= new Date(booking.checkOutDate))
-    );
-
-    if (roomConflict) {
-      this.errorMessage = 'This room is already booked for the selected dates.';
-      return;
-    }
-
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
     const totalPrice = (room.pricePerNight ?? 0) * nights;
 
-    const apiPayload = {
-      id: 0,
-      roomID: Number(room.id),
-      checkInDate: this.toApiDate(this.bookingModel.checkInDate),
-      checkOutDate: this.toApiDate(this.bookingModel.checkOutDate),
-      totalPrice,
-      isConfirmed: true,
-      customerName: this.bookingModel.clientName,
-      customerId: this.bookingModel.clientEmail || '',
-      customerPhone: this.bookingModel.clientPhone
-    };
+    const apiPayload = this.buildBookingPayload(room, totalPrice);
 
     try {
-      await this.api.createBooking(apiPayload);
+      this.isBooking = true;
+      this.successMessage = 'Saving booking...';
+      const createdBooking = await this.api.createBooking(apiPayload);
       this.successMessage = `Booking confirmed! Total: $${totalPrice}`;
       const bookedPhone = this.bookingModel.clientPhone;
-      await this.loadBookings();
+      this.showSubmittedBooking(createdBooking ?? apiPayload, apiPayload);
       this.bookingModel = {
         roomId: '',
         checkInDate: '',
         checkOutDate: '',
         clientName: '',
         clientPhone: bookedPhone,
-        clientEmail: ''
+        customerId: ''
       };
     } catch (error) {
-      this.errorMessage = 'Failed to save booking to API.';
+      if (this.shouldSaveLocalFallback(error)) {
+        const localBooking = this.saveLocalBooking(apiPayload);
+        this.successMessage = `Booking saved locally. The booking API is unavailable, so it was not saved on the server. Total: $${totalPrice}`;
+        const bookedPhone = this.bookingModel.clientPhone;
+        this.showSubmittedBooking(localBooking, apiPayload);
+        this.bookingModel = {
+          roomId: '',
+          checkInDate: '',
+          checkOutDate: '',
+          clientName: '',
+          clientPhone: bookedPhone,
+          customerId: ''
+        };
+      } else {
+        this.errorMessage = this.getBookingErrorMessage(error);
+      }
       console.error(error);
+    } finally {
+      this.isBooking = false;
     }
   }
 
   async cancelBooking(id: number): Promise<void> {
     this.errorMessage = '';
     this.successMessage = '';
+
+    const booking = this.bookings.find((item) => item.id === id);
+    if (booking?.localOnly) {
+      this.deleteLocalBooking(id);
+      this.successMessage = 'Local booking cancelled.';
+      await this.loadBookings();
+      return;
+    }
 
     try {
       await this.api.deleteBooking(id);
@@ -189,7 +216,31 @@ export class BookedComponent implements OnInit {
       clientName: booking.customerName ?? '',
       clientPhone: booking.customerPhone ?? '',
       clientEmail: booking.customerId ?? '',
-      bookingDate: ''
+      bookingDate: '',
+      localOnly: booking.localOnly ?? false
+    };
+  }
+
+  private showSubmittedBooking(createdBooking: any, fallbackPayload: BookingPostPayload): void {
+    const booking = {
+      ...fallbackPayload,
+      ...createdBooking
+    };
+
+    this.bookings = [this.mapApiBooking(booking)];
+  }
+
+  private buildBookingPayload(room: any, totalPrice: number): BookingPostPayload {
+    return {
+      id: 0,
+      roomID: Number(room.id),
+      checkInDate: this.toApiDate(this.bookingModel.checkInDate),
+      checkOutDate: this.toApiDate(this.bookingModel.checkOutDate),
+      totalPrice: Math.round(totalPrice),
+      isConfirmed: true,
+      customerName: this.bookingModel.clientName.trim(),
+      customerId: this.bookingModel.customerId.trim(),
+      customerPhone: this.bookingModel.clientPhone.trim()
     };
   }
 
@@ -202,10 +253,50 @@ export class BookedComponent implements OnInit {
   }
 
   private toApiDate(date: string): string {
-    return `${date}T00:00:00`;
+    return new Date(`${date}T00:00:00.000Z`).toISOString();
   }
 
   private toInputDate(date: string): string {
     return date?.slice(0, 10) ?? '';
+  }
+
+  private shouldSaveLocalFallback(error: any): boolean {
+    return error?.name === 'TimeoutError' || error?.status === 0 || error?.status === 504;
+  }
+
+  private getBookingErrorMessage(error: any): string {
+    if (error?.status === 400) {
+      return typeof error.error === 'string'
+        ? error.error
+        : 'The booking was rejected. Please choose different dates or another room.';
+    }
+
+    return 'Failed to save booking to API.';
+  }
+
+  private getLocalBookings(): any[] {
+    try {
+      const saved = localStorage.getItem(this.localBookingsKey);
+      const bookings = saved ? JSON.parse(saved) : [];
+      return Array.isArray(bookings) ? bookings : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveLocalBooking(booking: any): any {
+    const localBooking = {
+      ...booking,
+      id: Date.now(),
+      localOnly: true
+    };
+    const bookings = this.getLocalBookings();
+    localStorage.setItem(this.localBookingsKey, JSON.stringify([localBooking, ...bookings]));
+    return localBooking;
+  }
+
+  private deleteLocalBooking(id: number): void {
+    const bookings = this.getLocalBookings().filter((booking) => booking.id !== id);
+    localStorage.setItem(this.localBookingsKey, JSON.stringify(bookings));
   }
 }

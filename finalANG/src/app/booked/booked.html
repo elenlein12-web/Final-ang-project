@@ -62,16 +62,18 @@
     </div>
 
     <div class="form-group">
-      <label for="clientEmail">Email</label>
+      <label for="customerId">Customer ID</label>
       <input
-        id="clientEmail"
-        name="clientEmail"
-        type="email"
-        [(ngModel)]="bookingModel.clientEmail"
+        id="customerId"
+        name="customerId"
+        type="text"
+        [(ngModel)]="bookingModel.customerId"
       />
     </div>
 
-    <button type="submit">CONFIRM BOOKING</button>
+    <button type="submit" [disabled]="isBooking">
+      {{ isBooking ? 'SAVING...' : 'CONFIRM BOOKING' }}
+    </button>
 
     <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
     <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
@@ -83,6 +85,7 @@
 
     <div *ngFor="let booking of bookings" class="booked-card">
       <h3>{{ booking.roomName }}</h3>
+      <p *ngIf="booking.localOnly"><strong>Status:</strong> Saved locally</p>
       <p><strong>Client:</strong> {{ booking.clientName }}</p>
       <p><strong>Phone:</strong> {{ booking.clientPhone }}</p>
       <p><strong>Check-in:</strong> {{ booking.checkInDate }}</p>

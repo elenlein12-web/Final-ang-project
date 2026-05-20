@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 
 const API_BASE = 'https://hotelbooking.stepprojects.ge/api';
 
@@ -35,7 +35,9 @@ export class ApiService {
   }
 
   async createBooking(payload: any): Promise<any> {
-    return firstValueFrom(this.http.post<any>(`${API_BASE}/Booking`, payload));
+    return firstValueFrom(
+      this.http.post<any>(`${API_BASE}/Booking`, payload))
+      ;
   }
 
   async getBookings(): Promise<any[]> {
